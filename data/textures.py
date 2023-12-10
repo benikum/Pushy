@@ -21,21 +21,6 @@ class Texture:
         # fill self.frame
         self.loadFrame
     
-    def setSize(self, size):
-        # setzt blit size (quadratisch) / ansonsten wie png width
-        self.size = size
-    
-    def setPosition(self, x, y):
-        # setzt blit position
-        self.pos_x = x
-        self.pos_y = y
-    
-    def setRotation(self, rotation_side):
-        #  0
-        # 3 1
-        #  2
-        self.rotation = (rotation_side % 4) * -90
-
     def loadTexture(self):
         # lädt png in self.img
         try:
@@ -77,7 +62,23 @@ class Texture:
                 self.frame_index += 1
             self.frame = self.frame_list[self.frame_index]
     
+    def setSize(self, size):
+        # setzt blit size (quadratisch) / ansonsten wie png width
+        self.size = size
+    
+    def setPosition(self, x, y):
+        # setzt blit position
+        self.pos_x = x
+        self.pos_y = y
+    
+    def setRotation(self, rotation_side):
+        #  0
+        # 3 1
+        #  2
+        self.rotation = (rotation_side % 4) * -90
+    
     def blit(self, screen):
+        self.loadFrame()
         self.frame = pygame.transform.scale(self.frame, (self.size, self.size))
         self.frame = pygame.transform.rotate(self.frame, self.rotation)
         # blittet die textur
