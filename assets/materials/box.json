@@ -1,0 +1,6 @@
+{
+    "texture": "box",
+    "walkable": true,
+    "layer": "fall",
+    "movable": true
+}

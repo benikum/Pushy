@@ -1,0 +1,10 @@
+{
+    "language": "de",
+    "resolution": [1600, 1200],
+    "keybinds": {
+        "move_up": "w",
+        "move_down": "s",
+        "move_left": "a",
+        "move_right": "d"
+    }
+}

@@ -1,0 +1,43 @@
+{
+    "level_name": "Box-Insel",
+    "width": 16,
+    "height": 10,
+    "layer_1": {
+      "tilemap": [
+        "AAAAAAAAAAAAAAAA",
+        "AAAAAAAAAAAAAABB",
+        "AAAAABBBBAAAABBB",
+        "AAABBBBBBAAAABBB",
+        "AAABCCCBBBAAABBB",
+        "AABBCCCBBBAAABBB",
+        "AABCCCCCBBAAAABB",
+        "ABCCCCCCBBBAAAAA",
+        "ABCCCCCCCBBBBAAA",
+        "ABCCCCCCCBBBBBAA"
+      ],
+      "material": {
+        "A": "water",
+        "B": "sand",
+        "C": "grass"
+      }
+    },
+    "layer_2": {
+      "tilemap": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "00000000000000E0",
+        "0000000000000000",
+        "0000000000000000",
+        "000000FF00000000",
+        "0000000F00000000",
+        "000D000000000000",
+        "0000000000000000"
+      ],
+      "material": {
+        "D": "start",
+        "E": "finish",
+        "F": "box"
+      }
+    }
+  }
