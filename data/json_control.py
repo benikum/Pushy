@@ -5,3 +5,6 @@ def read(path):
     with open(path, "r") as file:
         json_data = json.load(file)
     return json_data
+
+def write(path, content):
+    pass

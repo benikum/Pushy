@@ -78,6 +78,7 @@ class Texture:
         self.rotation = (rotation_side % 4) * -90
     
     def blit(self, screen):
+        # blittet die texur
         self.loadFrame()
         self.frame = pygame.transform.scale(self.frame, (self.size, self.size))
         self.frame = pygame.transform.rotate(self.frame, self.rotation)

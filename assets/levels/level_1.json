@@ -2,10 +2,8 @@
   "name": "Box-Insel",
   "width": 16,
   "height": 10,
-  "start": [3, 8],
-  "finish": [14, 3],
-  "map": {
-    "tiles": [
+  "tile_map": {
+    "map": [
       "AAAAAAAAAAAAAAAA",
       "AAAAAAAAAAAAAABB",
       "AAAAABBBBAAAABBB",
@@ -17,12 +15,14 @@
       "ABCCCCCCCBBBBAAA",
       "ABCCCCCCCBBBBBAA"
     ],
-    "material": {
+    "materials": {
       "A": "water",
       "B": "sand",
       "C": "grass"
     }
   },
+  "start": [3, 8],
+  "finish": [14, 3],
   "objects": [
     {
       "type": "box",

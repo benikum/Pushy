@@ -1,17 +1,26 @@
 import pygame
 from pygame.locals import *
 # import json
-import logging
+# import logging
 import os
 from data import json_control
 # from data import graphics
 # from data import player
 
+def crashGame(errorCode):
+    #programm beenden
+    print("----CRASH----")
+    print("Code" + str(errorCode))
+
 def checkInstallation():
     necessary_files = [
         "assets",
         "assets/settings.json",
-        "assets/language",
+        "assets/entities",
+        "assets/lang",
+        "assets/levels",
+        "assets/materials",
+        "assets/textures",
         "data",
         "data/game.py",
         "data/graphics.py",
@@ -24,20 +33,21 @@ def checkInstallation():
         found = os.path.exists(file_path)
         if not found:
             corrupt_files.append(file_path)
-    print(str(len(corrupt_files)) + " Dateien fehlen")
+    print(str(len(corrupt_files)) + " files missing")
     if len(corrupt_files) > 0:
-        pygame.quit()
+        crashGame("files missing")
 
 pygame.init()
 # logging.base
 # main_log = logging.getLogger(__main__)
-checkInstallation()
 
 settings_data = json_control.read("assets/settings.json")
 window = pygame.display.set_mode(settings_data["resolution"])
 pygame.display.set_caption("Pushy Game v.00001")
 
 clock = pygame.time.Clock()
+
+checkInstallation()
 
 active = True
 while active:
