@@ -1,6 +1,6 @@
 import pygame
 
-class GameScreen:
+class GameScreenController:
     def __init__(self, game_instance, resolution):
         self.game_instance = game_instance
 
@@ -98,7 +98,6 @@ class Texture:
     def blit(self, screen, position, size=32, rotation=0):
         rotation = (rotation % 4) * -90
         # blittet die texur
-        self.loadFrame()
         self.frame = pygame.transform.scale(self.frame, (size, size))
         self.frame = pygame.transform.rotate(self.frame, rotation)
         # blittet die textur

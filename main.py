@@ -5,8 +5,9 @@ from pygame.locals import *
 import os
 import sys
 from data import json_control
-from data import graphics
 from data import game
+from data import graphics
+# from data import userinput
 
 def checkInstallation():
     necessary_files = [
@@ -20,7 +21,7 @@ def checkInstallation():
         "data/game.py",
         "data/graphics.py",
         "data/json_control.py",
-        "data/player.py"
+        "data/userinput.py"
     ]
     corrupt_files = []
     for file_path in necessary_files:
@@ -38,8 +39,9 @@ clock = pygame.time.Clock()
 
 settings_json = json_control.read("assets/settings.json")
 
-loaded_level = game.LevelMapController("level_1")
-display = graphics.GameScreen(loaded_level, settings_json["resolution"])
+level = game.LevelMapController("level_1")
+display = graphics.GameScreenController(level, settings_json["resolution"])
+# player = userinput.PlayerController()
 
 while True:
     for event in pygame.event.get():
