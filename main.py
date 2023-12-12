@@ -36,18 +36,13 @@ def checkInstallation():
         crashGame("files missing")
 
 pygame.init()
-# logging.base
-# main_log = logging.getLogger(__main__)
-
-settings_data = json_control.read("assets/settings.json")
-window = pygame.display.set_mode(settings_data["resolution"])
-pygame.display.set_caption("Pushy Game v.00001")
-
 clock = pygame.time.Clock()
 
-checkInstallation()
+# checkInstallation()
+print("\n")
 
-game.loadMap("level_1")
+loaded_level = game.LevelMapController("level_1")
+display = graphics.GameScreen(loaded_level)
 
 active = True
 while active:
@@ -58,6 +53,7 @@ while active:
         # if event.type == 
     # spielverlauf
     # grafik
+    display.draw_screen()
     pygame.display.flip()
     clock.tick(10)
 

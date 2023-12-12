@@ -1,4 +1,5 @@
 {
+    "material_type": "block",
     "texture": "grass",
     "walkable": true,
     "layer": 2

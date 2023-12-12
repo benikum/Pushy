@@ -18,8 +18,9 @@ class LevelMapController:
 
         self.compileMap()
         self.compileEntities()
+    
     def compileMap(self):
-        # clear current map
+        # clears current map
         self.map = []
         raw_map = self.json_data["tile_map"]
         board = raw_map["map"]
@@ -30,14 +31,15 @@ class LevelMapController:
             row = list(row)
             temp_row = []
             for tile in row:
-                temp_row.append(StackController(materials[tile]))
+                temp_row.append(StackController(self.materials[tile]))
             self.map.append(temp_row)
+    
     def compileEntities(self):
         start_pos = self.json_data["start"]
         self.map[start_pos[1]][start_pos[0]].setEntity(PlayerEntity("green"))
 
         finish_pos = self.json_data["finish"]
-        self.map[finish_pos[1]][finish_pos[0]].setEntity()
+        self.map[finish_pos[1]][finish_pos[0]].setEntity(Entity("finish"))
 
         for entity in self.json_data["entities"]:
             pos_x, pos_y = entity["position"]
@@ -67,12 +69,12 @@ class StackController(Material):
         self.walkable = self.json_data["walkable"]
         self.layer = self.json_data["layer"]
         self.entity = None
-    def setEntity(self, material_id):
-        self.entity = Entity(material_id)
+    def setEntity(self, entity):
+        self.entity = entity
     def delEntity(self):
         self.entity = None
     def getTexture(self):
-        return self.texture if self.entity == None else self.entity.texture
+        return self.texture # if self.entity == None else self.entity.texture
     def getLayer(self):
         return self.layer if self.entity == None else self.layer + 1
 
@@ -86,7 +88,7 @@ class Entity(Material):
 class PlayerEntity(Entity):
     def __init__(self, color):
         self.material_id = "player"
-        super().__init__(material_id)
+        super().__init__(self.material_id)
         
         self.color = color
         self.orientation = 0
@@ -95,8 +97,3 @@ class EventEntity(Entity):
     def __init__(self, material_id, event_type):
         super().__init__(material_id)
         self.event = event_type
-        
-
-def loadMap(map_id):
-    global map_instance
-    map_instance = LevelMapController(map_id)

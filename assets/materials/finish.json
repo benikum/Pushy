@@ -1,0 +1,6 @@
+{
+    "material_type": "event",
+    "texture": "diamond",
+    "walkable": true,
+    "layer": 1
+}

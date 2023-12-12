@@ -1,6 +1,6 @@
 {
     "language": "de",
-    "resolution": [400, 300],
+    "resolution": [800, 600],
     "keybinds": {
         "move_up": "w",
         "move_down": "s",

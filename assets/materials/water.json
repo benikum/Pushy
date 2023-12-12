@@ -1,5 +1,5 @@
 {
-    "type": "block",
+    "material_type": "block",
     "texture": "water",
     "walkable": false,
     "layer": 0
