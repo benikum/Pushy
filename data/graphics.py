@@ -1,4 +1,5 @@
 import pygame
+import random
 
 class GameScreenController:
     def __init__(self, game_instance, resolution):
@@ -26,8 +27,8 @@ class GameScreenController:
                     if not material in self.materials:
                         self.materials[material] = Texture(material)
                     self.materials[material].blit(self.game_window, (pos_x, pos_y), self.block_size)
-        for t in list(self.materials.values()):
-            t.nextFrame()
+        # for t in list(self.materials.values()):
+        #     t.nextFrame()
         pygame.display.flip()
 
 

@@ -1,0 +1,41 @@
+{
+    "name": "Sandinsel",
+    "width": 16,
+    "height": 10,
+    "tile_map": {
+      "map": [
+        "AAAAAAAAAAAAAAAA",
+        "AAAAAAAAAAAAAABB",
+        "AAAAAABBBAAAABBB",
+        "AAAABBBBAAAABBBB",
+        "AABBBCCCBBBAAAAA",
+        "ABBBCCCCCBAAAAAA",
+        "ABBBCCCCCBAAAAAA",
+        "AABBBCCCBBBAAAAA",
+        "AAAABBBBAAAABBBB",
+        "AAAAAABBBAAAABBB"
+      ],
+      "materials": {
+        "A": "water",
+        "B": "sand",
+        "C": "grass"
+      }
+    },
+    "start": [1, 8],
+    "finish": [14, 1],
+    "entities": [
+      {
+        "position": [3, 3],
+        "type": "box"
+      },
+      {
+        "position": [7, 5],
+        "type": "box"
+      },
+      {
+        "position": [10, 7],
+        "type": "box"
+      }
+    ]
+  }
+  

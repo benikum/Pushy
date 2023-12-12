@@ -1,6 +1,6 @@
 {
     "material_type": "block",
-    "texture": "water-flow",
+    "texture": "water",
     "walkable": false,
     "layer": 0
 }

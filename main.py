@@ -39,7 +39,7 @@ clock = pygame.time.Clock()
 
 settings_json = json_control.read("assets/settings.json")
 
-level = game.LevelMapController("level_1")
+level = game.LevelMapController("level_5")
 display = graphics.GameScreenController(level, settings_json["resolution"])
 # player = userinput.PlayerController()
 
@@ -50,4 +50,4 @@ while True:
             pygame.quit()
             sys.exit()
     display.draw_screen()
-    clock.tick(10)
+    clock.tick(60)

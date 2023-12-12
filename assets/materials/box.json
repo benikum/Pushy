@@ -2,8 +2,5 @@
     "material_type": "entity",
     "texture": "box",
     "walkable": true,
-    "layer": "top",
-    "attributes": [
-        "move"
-    ]
+    "layer": "top"
 }
