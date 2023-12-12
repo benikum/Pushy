@@ -23,10 +23,9 @@ class LevelMapController:
         self.map = []
         raw_map = self.json_data["tile_map"]
         board = raw_map["map"]
-        materials = raw_map["materials"]
-        if len(board) != self.board_height:
-            #asduhbasd
-            pass
+        self.materials = raw_map["materials"]
+        # if len(board) != self.board_height:
+        #     pass
         for row in board:
             row = list(row)
             temp_row = []
@@ -34,9 +33,16 @@ class LevelMapController:
                 temp_row.append(StackController(materials[tile]))
             self.map.append(temp_row)
     def compileEntities(self):
+        start_pos = self.json_data["start"]
+        self.map[start_pos[1]][start_pos[0]].setEntity(PlayerEntity("green"))
+
+        finish_pos = self.json_data["finish"]
+        self.map[finish_pos[1]][finish_pos[0]].setEntity()
+
         for entity in self.json_data["entities"]:
             pos_x, pos_y = entity["position"]
             self.map[pos_y][pos_x].setEntity(entity["type"])
+
     def moveEntity(self, current_pos, new_pos):
         current_stack = self.map[current_pos[1]][current_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
@@ -77,9 +83,20 @@ class Entity(Material):
         self.texture = self.json_data["texture"]
         # self.attributes = self.json_data["attributes"]
 
-class Player(Entity):
-    def __init__(self, material_id, color):
+class PlayerEntity(Entity):
+    def __init__(self, color):
+        self.material_id = "player"
         super().__init__(material_id)
         
         self.color = color
         self.orientation = 0
+
+class EventEntity(Entity):
+    def __init__(self, material_id, event_type):
+        super().__init__(material_id)
+        self.event = event_type
+        
+
+def loadMap(map_id):
+    global map_instance
+    map_instance = LevelMapController(map_id)

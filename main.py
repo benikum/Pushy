@@ -4,8 +4,8 @@ from pygame.locals import *
 # import logging
 import os
 from data import json_control
-# from data import graphics
-# from data import player
+from data import graphics
+from data import game
 
 def crashGame(errorCode):
     #programm beenden
@@ -16,7 +16,6 @@ def checkInstallation():
     necessary_files = [
         "assets",
         "assets/settings.json",
-        "assets/entities",
         "assets/lang",
         "assets/levels",
         "assets/materials",
@@ -25,8 +24,7 @@ def checkInstallation():
         "data/game.py",
         "data/graphics.py",
         "data/json_control.py",
-        "data/player.py",
-        "data/textures.py"
+        "data/player.py"
     ]
     corrupt_files = []
     for file_path in necessary_files:
@@ -48,6 +46,8 @@ pygame.display.set_caption("Pushy Game v.00001")
 clock = pygame.time.Clock()
 
 checkInstallation()
+
+game.loadMap("level_1")
 
 active = True
 while active:
