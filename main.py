@@ -3,14 +3,10 @@ from pygame.locals import *
 # import json
 # import logging
 import os
+import sys
 from data import json_control
 from data import graphics
 from data import game
-
-def crashGame(errorCode):
-    #programm beenden
-    print("----CRASH----")
-    print("Code" + str(errorCode))
 
 def checkInstallation():
     necessary_files = [
@@ -33,28 +29,23 @@ def checkInstallation():
             corrupt_files.append(file_path)
     print(str(len(corrupt_files)) + " files missing")
     if len(corrupt_files) > 0:
-        crashGame("files missing")
+        print("SHUTTING DOWN")
+        sys.exit()
+checkInstallation()
 
 pygame.init()
 clock = pygame.time.Clock()
 
-# checkInstallation()
-print("\n")
+settings_json = json_control.read("assets/settings.json")
 
 loaded_level = game.LevelMapController("level_1")
-display = graphics.GameScreen(loaded_level)
+display = graphics.GameScreen(loaded_level, settings_json["resolution"])
 
-active = True
-while active:
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            active = False
-            break
-        # if event.type == 
-    # spielverlauf
-    # grafik
+            print("bb :D")
+            pygame.quit()
+            sys.exit()
     display.draw_screen()
-    pygame.display.flip()
     clock.tick(10)
-
-pygame.quit()

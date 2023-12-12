@@ -1,24 +1,35 @@
 import pygame
-from data import json_control
 
 class GameScreen:
-    def __init__(self, game_instance):
-        json_data = json_control.read("assets/settings.json")
-        self.game_window = pygame.display.set_mode(json_data["resolution"])
-        pygame.display.set_caption("Pushy Game v.00001")
-        
-        self.block_size = 32
+    def __init__(self, game_instance, resolution):
         self.game_instance = game_instance
-        self.materials = {"diamond":Texture("diamond"),"pushy":Texture("pushy")}
-        for value in list(self.game_instance.json_data["tile_map"]["materials"].values()):
-            self.materials[value] = Texture(value)
+
+        self.block_size = resolution[0] / game_instance.board_width
+        # resolution[1] = self.block_size * game_instance.board_height
+
+        self.game_window = pygame.display.set_mode(resolution)
+        pygame.display.set_caption("Pushy Game v.00001")
+
+        self.materials = {}
     def draw_screen(self):
+        self.game_window.fill((0, 0, 0))
         for h in range(self.game_instance.board_height):
             for w in range(self.game_instance.board_width):
-                material = self.game_instance.map[h][w].getTexture()
+                material = self.game_instance.map[h][w].texture
+                if not material in self.materials:
+                    self.materials[material] = Texture(material)
                 pos_x = w * self.block_size
                 pos_y = h * self.block_size
                 self.materials[material].blit(self.game_window, (pos_x, pos_y), self.block_size)
+                if self.game_instance.map[h][w].entity != None:
+                    material = self.game_instance.map[h][w].entity.texture
+                    if not material in self.materials:
+                        self.materials[material] = Texture(material)
+                    self.materials[material].blit(self.game_window, (pos_x, pos_y), self.block_size)
+        for t in list(self.materials.values()):
+            t.nextFrame()
+        pygame.display.flip()
+
 
 class Texture:
     # error fallback img
@@ -40,7 +51,7 @@ class Texture:
         # check if the texture is animated
         self.isAnimated()
         # fill self.frame
-        self.loadFrame
+        self.loadFrame()
     
     def loadTexture(self):
         # lädt png in self.img
@@ -66,7 +77,7 @@ class Texture:
         if self.animated:
             self.frame_list = []
             for y in range(0, self.rect.height, self.rect.width):
-                frame_rect = pygame.Rect(0, y, self.rect.width, self.rect.height)
+                frame_rect = pygame.Rect(0, y, self.rect.width, self.rect.width)
                 frame_surface = self.img.subsurface(frame_rect)
                 self.frame_list.append(frame_surface)
             self.frame_index = 0

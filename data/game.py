@@ -1,4 +1,3 @@
-# import pygame
 from data import json_control
 
 class LevelMapController:
@@ -36,14 +35,18 @@ class LevelMapController:
     
     def compileEntities(self):
         start_pos = self.json_data["start"]
-        self.map[start_pos[1]][start_pos[0]].setEntity(PlayerEntity("green"))
+        self.map[start_pos[1]][start_pos[0]].entity = PlayerEntity("green")
 
         finish_pos = self.json_data["finish"]
-        self.map[finish_pos[1]][finish_pos[0]].setEntity(Entity("finish"))
-
+        self.map[finish_pos[1]][finish_pos[0]].entity = Entity("finish")
+        
+        self.entity_materials = {}
         for entity in self.json_data["entities"]:
             pos_x, pos_y = entity["position"]
-            self.map[pos_y][pos_x].setEntity(entity["type"])
+            entity_id = entity["type"]
+            if not entity_id in self.entity_materials:
+                self.entity_materials[entity_id] = Entity(entity_id)
+            self.map[pos_y][pos_x].entity = self.entity_materials[entity_id]
 
     def moveEntity(self, current_pos, new_pos):
         current_stack = self.map[current_pos[1]][current_pos[0]]
@@ -69,14 +72,8 @@ class StackController(Material):
         self.walkable = self.json_data["walkable"]
         self.layer = self.json_data["layer"]
         self.entity = None
-    def setEntity(self, entity):
-        self.entity = entity
-    def delEntity(self):
-        self.entity = None
-    def getTexture(self):
-        return self.texture # if self.entity == None else self.entity.texture
-    def getLayer(self):
-        return self.layer if self.entity == None else self.layer + 1
+    # def getLayer(self):
+    #     return self.layer if self.entity == None else self.layer + 1
 
 class Entity(Material):
     def __init__(self, material_id):
