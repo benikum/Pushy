@@ -1,6 +1,6 @@
 {
     "material_type": "entity",
-    "texture": "box",
+    "texture": "planks",
     "walkable": true,
     "layer": "top"
 }

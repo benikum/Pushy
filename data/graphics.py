@@ -21,14 +21,16 @@ class GameScreenController:
                     self.materials[material] = Texture(material)
                 pos_x = w * self.block_size
                 pos_y = h * self.block_size
-                self.materials[material].blit(self.game_window, (pos_x, pos_y), self.block_size)
+                # if self.materials[material].animated:
+                #     self.materials[material].frame = random.choice(self.materials[material].frame_list)
+                self.materials[material].blitTexture(self.game_window, (pos_x, pos_y), self.block_size)
                 if self.game_instance.map[h][w].entity != None:
                     material = self.game_instance.map[h][w].entity.texture
                     if not material in self.materials:
                         self.materials[material] = Texture(material)
-                    self.materials[material].blit(self.game_window, (pos_x, pos_y), self.block_size)
-        # for t in list(self.materials.values()):
-        #     t.nextFrame()
+                    self.materials[material].blitTexture(self.game_window, (pos_x, pos_y), self.block_size)
+        for t in list(self.materials.values()):
+            t.nextFrame()
         pygame.display.flip()
 
 
@@ -96,7 +98,7 @@ class Texture:
             self.frame = self.frame_list[self.frame_index]
     
     
-    def blit(self, screen, position, size=32, rotation=0):
+    def blitTexture(self, screen, position, size=32, rotation=0):
         rotation = (rotation % 4) * -90
         # blittet die texur
         self.frame = pygame.transform.scale(self.frame, (size, size))

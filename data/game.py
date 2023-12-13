@@ -12,9 +12,6 @@ class LevelMapController:
         self.board_width = self.json_data["width"]
         self.board_height = self.json_data["height"]
 
-        self.start_pos = self.json_data["start"]
-        self.finish_pos = self.json_data["finish"]
-
         self.compileMap()
         self.compileEntities()
     
@@ -34,12 +31,11 @@ class LevelMapController:
             self.map.append(temp_row)
     
     def compileEntities(self):
-        start_pos = self.json_data["start"]
-        self.map[start_pos[1]][start_pos[0]].entity = PlayerEntity("green")
+        self.start_pos = self.json_data["start"]
+        self.finish_pos = self.json_data["finish"]
+        self.map[self.start_pos[1]][self.start_pos[0]].entity = PlayerEntity("green")
+        self.map[self.finish_pos[1]][self.finish_pos[0]].entity = Entity("finish")
 
-        finish_pos = self.json_data["finish"]
-        self.map[finish_pos[1]][finish_pos[0]].entity = Entity("finish")
-        
         self.entity_materials = {}
         for entity in self.json_data["entities"]:
             pos_x, pos_y = entity["position"]
@@ -52,10 +48,10 @@ class LevelMapController:
         current_stack = self.map[current_pos[1]][current_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
         if current_stack.entity == None or new_stack.entity != None:
-            return False
+            return current_pos
         new_stack.entity = current_stack.entity
-        current_stack.delEntity()
-        return True
+        current_stack.entity = None
+        return new_pos
 
 class Material:
     def __init__(self, material_id):
@@ -90,7 +86,7 @@ class PlayerEntity(Entity):
         self.color = color
         self.orientation = 0
 
-class EventEntity(Entity):
-    def __init__(self, material_id, event_type):
-        super().__init__(material_id)
-        self.event = event_type
+# class EventEntity(Entity):
+#     def __init__(self, material_id, event_type):
+#         super().__init__(material_id)
+#         self.event = event_type

@@ -7,7 +7,7 @@ import sys
 from data import json_control
 from data import game
 from data import graphics
-# from data import userinput
+from data import userinput
 
 def checkInstallation():
     necessary_files = [
@@ -39,9 +39,9 @@ clock = pygame.time.Clock()
 
 settings_json = json_control.read("assets/settings.json")
 
-level = game.LevelMapController("level_5")
+level = game.LevelMapController("level_1")
 display = graphics.GameScreenController(level, settings_json["resolution"])
-# player = userinput.PlayerController()
+playerC = userinput.PlayerController(level)
 
 while True:
     for event in pygame.event.get():
@@ -49,5 +49,14 @@ while True:
             print("bb :D")
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                playerC.move([0, -1])
+            elif event.key == pygame.K_a:
+                playerC.move([-1, 0])
+            elif event.key == pygame.K_s:
+                playerC.move([0, 1])
+            elif event.key == pygame.K_d:
+                playerC.move([1, 0])
     display.draw_screen()
-    clock.tick(60)
+    clock.tick(10)
