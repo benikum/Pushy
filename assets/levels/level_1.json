@@ -26,15 +26,15 @@
   "entities": [
     {
       "position": [6, 6],
-      "type": "box"
+      "id": "box"
     },
     {
       "position": [7, 6],
-      "type": "box"
+      "id": "box"
     },
     {
       "position": [7, 7],
-      "type": "box"
+      "id": "box"
     }
   ]
 }

@@ -17,11 +17,6 @@ def checkInstallation():
         "assets/levels",
         "assets/materials",
         "assets/textures",
-        "data",
-        "data/game.py",
-        "data/graphics.py",
-        "data/json_control.py",
-        "data/userinput.py"
     ]
     corrupt_files = []
     for file_path in necessary_files:
@@ -39,9 +34,9 @@ clock = pygame.time.Clock()
 
 settings_json = json_control.read("assets/settings.json")
 
-level = game.LevelMapController("level_1")
-display = graphics.GameScreenController(level, settings_json["resolution"])
-playerC = userinput.PlayerController(level)
+level_map_controller = game.LevelMapController("level_1")
+game_screen_controller = graphics.GameScreenController(level_map_controller, settings_json["resolution"])
+player_controller = userinput.PlayerController(level_map_controller)
 
 while True:
     for event in pygame.event.get():
@@ -51,12 +46,12 @@ while True:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
-                playerC.move([0, -1])
+                player_controller.move([0, -1])
             elif event.key == pygame.K_a:
-                playerC.move([-1, 0])
+                player_controller.move([-1, 0])
             elif event.key == pygame.K_s:
-                playerC.move([0, 1])
+                player_controller.move([0, 1])
             elif event.key == pygame.K_d:
-                playerC.move([1, 0])
-    display.draw_screen()
+                player_controller.move([1, 0])
+    game_screen_controller.draw_screen()
     clock.tick(10)
