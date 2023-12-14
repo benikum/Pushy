@@ -1,4 +1,6 @@
 {
     "material_type": "object",
-    "texture": "beta-pushy"
+    "texture": "beta-pushy",
+    "walkable": true,
+    "layer": "top"
 }

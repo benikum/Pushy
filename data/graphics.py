@@ -1,5 +1,5 @@
 import pygame
-import random
+# import random
 
 class GameScreenController:
     def __init__(self, game_instance, resolution):
@@ -16,23 +16,16 @@ class GameScreenController:
         self.game_window.fill((0, 0, 0))
         for h in range(self.game_instance.board_height):
             for w in range(self.game_instance.board_width):
-                material = self.game_instance.map[h][w].texture
-                if not material in self.materials:
-                    self.materials[material] = Texture(material)
+                tile = self.game_instance.map[h][w]
                 pos_x = w * self.block_size
                 pos_y = h * self.block_size
-                # if self.materials[material].animated:
-                #     self.materials[material].frame = random.choice(self.materials[material].frame_list)
-                self.materials[material].blitTexture(self.game_window, (pos_x, pos_y), self.block_size)
-                if self.game_instance.map[h][w].entity != None:
-                    material = self.game_instance.map[h][w].entity.texture
-                    if not material in self.materials:
-                        self.materials[material] = Texture(material)
-                    self.materials[material].blitTexture(self.game_window, (pos_x, pos_y), self.block_size)
+                for i in tile.getTextures():
+                    if not i in self.materials:
+                        self.materials[i] = Texture(i)
+                    self.materials[i].blitTexture(self.game_window, (pos_x, pos_y), self.block_size)
         for t in list(self.materials.values()):
             t.nextFrame()
         pygame.display.flip()
-
 
 class Texture:
     # error fallback img
@@ -96,7 +89,6 @@ class Texture:
             else:
                 self.frame_index += 1
             self.frame = self.frame_list[self.frame_index]
-    
     
     def blitTexture(self, screen, position, size=32, rotation=0):
         rotation = (rotation % 4) * -90

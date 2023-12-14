@@ -4,35 +4,35 @@ from pygame.locals import *
 # import logging
 import os
 import sys
-from data import json_control
+import json
 from data import game
 from data import graphics
 from data import userinput
 
-def checkInstallation():
-    necessary_files = [
-        "assets",
-        "assets/settings.json",
-        "assets/lang",
-        "assets/levels",
-        "assets/materials",
-        "assets/textures",
-    ]
-    corrupt_files = []
-    for file_path in necessary_files:
-        found = os.path.exists(file_path)
-        if not found:
-            corrupt_files.append(file_path)
-    print(str(len(corrupt_files)) + " files missing")
-    if len(corrupt_files) > 0:
-        print("SHUTTING DOWN")
-        sys.exit()
-checkInstallation()
+# check if all files are there
+necessary_files = [
+    "assets",
+    "assets/settings.json",
+    "assets/lang",
+    "assets/levels",
+    "assets/materials",
+    "assets/textures",
+]
+corrupt_files = []
+for file_path in necessary_files:
+    found = os.path.exists(file_path)
+    if not found:
+        corrupt_files.append(file_path)
+print(str(len(corrupt_files)) + " files missing")
+if len(corrupt_files) > 0:
+    print("SHUTTING DOWN")
+    sys.exit()
 
 pygame.init()
 clock = pygame.time.Clock()
 
-settings_json = json_control.read("assets/settings.json")
+with open("assets/settings.json", "r") as file:
+    settings_json = json.load(file)
 
 level_map_controller = game.LevelMapController("level_1")
 game_screen_controller = graphics.GameScreenController(level_map_controller, settings_json["resolution"])

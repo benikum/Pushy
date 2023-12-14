@@ -2,5 +2,5 @@
     "material_type": "event",
     "texture": "emerald",
     "walkable": true,
-    "layer": 1
+    "layer": 0
 }

@@ -1,10 +1,10 @@
-from data import json_control
-
+import json
 class LevelMapController:
     def __init__(self, map_id):
         self.map_id = map_id
         self.map_path = "assets/levels/" + self.map_id + ".json"
-        self.json_data = json_control.read(self.map_path)
+        with open(self.map_path, "r") as file:
+            self.json_data = json.load(file)
         
         # read infomation
         self.level_name = self.json_data["name"]
@@ -15,21 +15,21 @@ class LevelMapController:
         self.compileMap()
         self.compileEntities()
 
-        self.start_pos = self.validPosition(self.json_data["start"])
-        self.finish_pos = self.validPosition(self.json_data["finish"])
+        self.start_pos = self.getValidPos(self.json_data["start"])
+        self.finish_pos = self.getValidPos(self.json_data["finish"])
 
-    def validPosition(self, position):
+    def getValidPos(self, position):
         if not isinstance(position, list):
             return [0, 0]
         if len(position) != 2:
             return [0, 0]
         if position[0] < 0:
             position[0] = 0
-        if position[0] > self.board_width:
+        elif position[0] > self.board_width:
             position[0] = self.board_width
         if position[1] < 0:
             position[1] = 0
-        if position[1] > self.board_height:
+        elif position[1] > self.board_height:
             position[1] = self.board_height
         return position
     
@@ -70,7 +70,7 @@ class LevelMapController:
         for entity in self.json_data["entities"]:
             if not ("position" in entity) and ("id" in entity):
                 continue
-            position = self.validPosition(entity["position"])
+            position = self.getValidPos(entity["position"])
             entity_id = entity["id"]
             if not entity_id in self.entity_materials:
                 self.entity_materials[entity_id] = Entity(entity_id)
@@ -79,7 +79,9 @@ class LevelMapController:
     def moveEntity(self, current_pos, new_pos):
         current_stack = self.map[current_pos[1]][current_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
-        if current_stack.entity == None or not new_stack.walkable:
+
+        if current_stack.entity == None \
+        or not new_stack.walkable:
             return current_pos
         new_stack.entity = current_stack.entity
         current_stack.entity = None
@@ -87,32 +89,51 @@ class LevelMapController:
 
 class StackController():
     def __init__(self, base_material_id):
-        self.materials[Material(base_material_id)]
+        self.materials = [Block(base_material_id)]
+    
     def addMaterial(self, material):
         self.materials.append(material)
+    def delMaterial(self, material):
+        self.materials.remove(material)
+    
+    def getTextures(self):
+        return [i.texture for i in self.materials]
+    def getWalkable(self):
+        return self.materials[-1].walkable
     def getLayer(self):
-        return self.layer if self.entity == None else self.layer + 1
-
+        layers = [i.layer for i in self.materials]
+        layers.reverse()
+        extend = 0
+        for i in range(len(layers), 0, -1):
+            if layers[i] == "top":
+                extend += 1
+            elif isinstance(layers[i], int):
+                return layers[i] + extend
 class Material:
     def __init__(self, material_id):
         self.material_id = material_id
         self.material_path = "assets/materials/" + self.material_id + ".json"
-        self.json_data = json_control.read(self.material_path)
+        with open(self.material_path, "r") as file:
+            self.json_data = json.load(file)
+
         self.material_type = self.json_data["material_type"]
 
         self.texture = self.json_data["texture"]
+        self.layer = self.json_data["layer"]
+        self.walkable = self.json_data["walkable"]
 
-class Entity(Material):
-    def __init__(self, material_id):
-        super().__init__(material_id)
-
-        self.texture = self.json_data["texture"]
-        # self.attributes = self.json_data["attributes"]
-
-class PlayerEntity(Entity):
+class PlayerEntity(Material):
     def __init__(self, color):
         self.material_id = "player"
         super().__init__(self.material_id)
         
-        self.color = color
-        self.orientation = 0
+        # self.color = color
+        # self.orientation = 0
+
+class Block(Material):
+    def __init__(self, material_id):
+        super().__init__(material_id)
+
+class Entity(Block):
+    def __init__(self, material_id):
+        super().__init__(material_id)
