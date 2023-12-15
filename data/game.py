@@ -80,35 +80,35 @@ class LevelMapController:
         current_stack = self.map[current_pos[1]][current_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
 
-        if current_stack.entity == None \
-        or not new_stack.walkable:
-            return current_pos
-        new_stack.entity = current_stack.entity
-        current_stack.entity = None
-        return new_pos
+        if new_stack.getWalkable() \
+        and current_stack.getLayer() >= new_stack.getLayer():
+            new_stack.addMaterial(current_stack.materials[-1])
+            current_stack.delMaterial()
+            return new_pos
+        return current_pos
 
 class StackController():
-    def __init__(self, base_material_id):
-        self.materials = [Block(base_material_id)]
-    
+    def __init__(self, material_id):
+        self.materials = [Material(material_id)]
     def addMaterial(self, material):
         self.materials.append(material)
-    def delMaterial(self, material):
-        self.materials.remove(material)
-    
+    def delMaterial(self, layer=-1):
+        if len(self.materials) > 1:
+            return self.materials.pop(layer)
     def getTextures(self):
-        return [i.texture for i in self.materials]
+        return [[i.texture, i.orientation] for i in self.materials]
     def getWalkable(self):
         return self.materials[-1].walkable
     def getLayer(self):
         layers = [i.layer for i in self.materials]
-        layers.reverse()
-        extend = 0
-        for i in range(len(layers), 0, -1):
-            if layers[i] == "top":
-                extend += 1
-            elif isinstance(layers[i], int):
-                return layers[i] + extend
+        value = 0
+        for i in layers:
+            if isinstance(i, int):
+                value = i
+            elif i == "top":
+                value += 1
+        return value
+            
 class Material:
     def __init__(self, material_id):
         self.material_id = material_id
@@ -119,21 +119,14 @@ class Material:
         self.material_type = self.json_data["material_type"]
 
         self.texture = self.json_data["texture"]
+        self.orientation = 0
         self.layer = self.json_data["layer"]
         self.walkable = self.json_data["walkable"]
 
 class PlayerEntity(Material):
     def __init__(self, color):
-        self.material_id = "player"
-        super().__init__(self.material_id)
-        
-        # self.color = color
-        # self.orientation = 0
-
-class Block(Material):
-    def __init__(self, material_id):
-        super().__init__(material_id)
-
-class Entity(Block):
+        super().__init__("player")
+        self.color = color
+class Entity(Material):
     def __init__(self, material_id):
         super().__init__(material_id)
