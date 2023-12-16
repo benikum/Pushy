@@ -1,6 +1,8 @@
 {
     "material_type": "block",
     "texture": "sand",
-    "walkable": true,
-    "layer": 1
+    "height": 1,
+    "attributes": [
+        "walk"
+    ]
 }

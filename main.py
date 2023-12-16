@@ -14,8 +14,7 @@ necessary_files = [
     "assets/lang",
     "assets/levels",
     "assets/materials",
-    "assets/textures",
-]
+    "assets/textures"]
 corrupt_files = []
 for file_path in necessary_files:
     found = os.path.exists(file_path)

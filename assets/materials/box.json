@@ -1,6 +1,9 @@
 {
     "material_type": "entity",
     "texture": "planks",
-    "walkable": true,
-    "layer": "top"
+    "height": 1,
+    "attributes": [
+        "walk",
+        "move"
+    ]
 }

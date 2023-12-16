@@ -1,6 +1,10 @@
 {
-    "material_type": "object",
-    "texture": "beta-pushy",
-    "walkable": false,
-    "layer": "even"
+    "material_type": "entity",
+    "texture": "pushy",
+    "height": 1,
+    "attributes": [
+        "walk",
+        "move",
+        "control"
+    ]
 }

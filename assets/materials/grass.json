@@ -1,6 +1,8 @@
 {
     "material_type": "block",
     "texture": "grass",
-    "walkable": true,
-    "layer": 2
+    "height": 2,
+    "attributes": [
+        "walk"
+    ]
 }
