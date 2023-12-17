@@ -1,41 +1,41 @@
-import json
+from os import walk
+from data.file_ctrl import json_read
+
 class LevelMapController:
     def __init__(self, map_id):
         self.map_id = map_id
         self.map_path = "assets/levels/" + self.map_id + ".json"
-        with open(self.map_path, "r") as file:
-            self.json_data = json.load(file)
+        self.json_data = json_read(self.map_path)
         
-        # read infomation
-        self.level_name = self.json_data["name"]
+        self.level_name = self.json_data.get("name", "NAME")
 
-        self.board_width = self.json_data["width"]
-        self.board_height = self.json_data["height"]
+        self.board_width = self.json_data.get("width", 1)
+        self.board_height = self.json_data.get("height", 1)
         
-        self.compileMap()
-        self.compileEntities()
+        self.compile_map()
+        self.compile_entities()
 
-        self.start_pos = self.getValidPos(self.json_data["start"])
-        self.finish_pos = self.getValidPos(self.json_data["finish"])
+        self.start_pos = self.get_valid_pos(self.json_data.get("start", [0, 0]))
+        self.finish_pos = self.get_valid_pos(self.json_data.get("finish", [0, 0]))
 
-    def isValidPos(self, position):
+    def is_valid_pos(self, position):
         return isinstance(position, list) and len(position) == 2 \
         and (0 <= position[0] < self.board_width) \
         and (0 <= position[1] < self.board_height)
 
-    def getValidPos(self, position):
-        if self.isValidPos(position):
+    def get_valid_pos(self, position):
+        if self.is_valid_pos(position):
             return position
         return [0, 0]
     
-    def compileMap(self):
+    def compile_map(self):
         # loads level.json into a list with classes
         self.map = []
         raw_map = self.json_data["tile_map"]
         board = raw_map["map"]
         materials = raw_map["materials"]
 
-        # error handling 
+        # cut board height
         if len(materials) == 0:
             materials = {"A":"sand"}
         while len(board) > self.board_height:
@@ -44,140 +44,99 @@ class LevelMapController:
             board.append([])
 
         for row in board:
-            # ["ABC"] -> ["A", "B", "C"]
+            # cut board width
             key_row = list(row)
-            # ["AB"]  -> ["A", "B", "A"]
             while len(key_row) > self.board_width:
                 key_row.pop(-1)
             while len(key_row) < self.board_width:
                 key_row.append(list(materials.keys())[0])
-            # ["A", "B", "C"] -> [matA, matB, matC]
+            # convert index to stackcontroller
             mat_row = []
             for tile in key_row:
                 mat_row.append(StackController(materials[tile]))
             self.map.append(mat_row)
     
-    def compileEntities(self):
+    def compile_entities(self):
         # loads entities from level.json into self.map
-        self.entity_materials = {}
-        if not "entities" in self.json_data:
-            return
-        for entity in self.json_data["entities"]:
-            if not ("position" in entity) and ("id" in entity):
+        self.entity_materials = dict()
+        for entity in self.json_data.get("entities", []):
+            # check if entity is valid
+            if (not isinstance(entity, dict)) or (not ("position" in entity) and ("id" in entity)):
                 continue
-            position = self.getValidPos(entity["position"])
-            entity_id = entity["id"]
+            position = self.get_valid_pos(entity["position"])
+            entity_id = entity["material_id"]
             if not entity_id in self.entity_materials:
-                self.entity_materials[entity_id] = Entity(entity_id)
-            self.map[position[1]][position[0]].addMaterial(self.entity_materials[entity_id])
+                self.entity_materials[entity_id] = Material(entity_id)
+            # add entity in stack
+            self.map[position[1]][position[0]].materials.append(self.entity_materials[entity_id])
 
-    def moveEntity(self, material_id , current_pos, rel_pos):
-        # return if invalid
-        if not self.isValidPos(current_pos):
+    def move_entity(self, material_id, cur_pos, rel_pos):
+        # check if valid
+        if not self.is_valid_pos(cur_pos):
             return [0, 0]
-        
         if (not (isinstance(rel_pos, list) and len(rel_pos) == 2)) or rel_pos.count(0) == 2:
-            return current_pos
-        
-        new_pos = [current_pos[0] + rel_pos[0], current_pos[1] + rel_pos[1]]
-        if not self.isValidPos(new_pos):
-            return current_pos
+            return cur_pos
+        new_pos = [cur_pos[0] + rel_pos[0], cur_pos[1] + rel_pos[1]]
+        if not self.is_valid_pos(new_pos):
+            return cur_pos
         
         # get StackController instances
-        current_stack = self.map[current_pos[1]][current_pos[0]]
+        cur_stack = self.map[cur_pos[1]][cur_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
 
-        current_layers = current_stack.getLayers()
-        new_layers = new_stack.getLayers()
+        # type, height, walkable
+        cur_type, cur_height, cur_walk = cur_stack.get_entity_attributes()
+        new_type, new_height, new_walk = new_stack.get_entity_attributes()
 
-        new_walkables = new_stack.getWalkables()
+        if 
 
-        # step to next top
-        if new_walkables[-1] and new_layers[-1] <= current_layers[-2]:
-            # move player
-            new_stack.addMaterial(current_stack.getMaterial(material_id))
-            current_stack.delMaterial(material_id)
-            return new_pos
-        
-        # step to next block and move box
-        if len(new_walkables) > 1 and new_walkables[-2] and new_layers[-1] == current_layers[-1]:
-            # calculate far_stack
-            far_pos = [new_pos[0] + rel_pos[0], new_pos[1] + rel_pos[1]]
-            if self.isValidPos(far_pos):
-                far_stack = self.map[far_pos[1]][far_pos[0]]
-                far_layers = far_stack.getLayers()
-                # if box can move to far_stack
-                if new_layers[-2] <= far_layers[-1]:
-                    # move box
-                    far_stack.addMaterial(new_stack.materials[-1])
-                    far_stack.materials.pop(-1)
-                    # move player
-                    new_stack.addMaterial(current_stack.getMaterial(material_id))
-                    current_stack.delMaterial(material_id)
-                    return new_pos
-        return current_pos
+        return cur_pos
+    
+
+        # # step to next top
+        # if new_walkables[-1] and new_layers[-1] <= current_layers[-2]:
+        #     # move player
+        #     new_stack.addMaterial(cur_stack.getMaterial(material_id))
+        #     cur_stack.delMaterial(material_id)
+        #     return new_pos
+        # # step to next block and move box
+        # if len(new_walkables) > 1 and new_walkables[-2] and new_layers[-1] == current_layers[-1]:
+        #     # calculate far_stack
+        #     far_pos = [new_pos[0] + rel_pos[0], new_pos[1] + rel_pos[1]]
+        #     if self.isValidPos(far_pos):
+        #         far_stack = self.map[far_pos[1]][far_pos[0]]
+        #         far_layers = far_stack.getLayers()
+        #         # if box can move to far_stack
+        #         if new_layers[-2] <= far_layers[-1]:
+        #             # move box
+        #             far_stack.addMaterial(new_stack.materials[-1])
+        #             far_stack.materials.pop(-1)
+        #             # move player
+        #             new_stack.addMaterial(cur_stack.getMaterial(material_id))
+        #             cur_stack.delMaterial(material_id)
+        #             return new_pos
 
 class StackController():
     def __init__(self, material_id):
         self.materials = [Material(material_id)]
-    def addMaterial(self, material):
-        self.materials.append(material)
-    def delMaterial(self, mat_id):
-        id_list = list(i.material_id for i in self.materials)
-        for i, m in enumerate(id_list):
-            if mat_id == m:
-                if i != 0:
-                    self.materials.pop(i)
-        return False
-    def getMaterial(self, mat_id):
-        id_list = list(i.material_id for i in self.materials)
-        for i, m in enumerate(id_list):
-            if mat_id == m:
-                return self.materials[i]
-    def getTextures(self):
-        return list([i.texture, i.orientation if isinstance(i, PlayerEntity) else 0] for i in self.materials)
-    def getWalkables(self):
-        return list("walk" in i.attributes for i in self.materials)
-    def getLayers(self):
-        return list(i.height for i in self.materials)
-            
+    def get_textures(self):
+        return list([i.texture, i.orientation] for i in self.materials)
+    def get_entity_attributes(self):
+        type_list = [i.material_type for i in self.materials]
+        height_list = [i.height for i in self.materials]
+        walk_list = [("walk" in i.attributes) for i in self.materials]
+
+        return type_list, height_list, walk_list
+
 class Material:
     def __init__(self, material_id):
         self.material_id = material_id
         self.material_path = "assets/materials/" + self.material_id + ".json"
-        try:
-            with open(self.material_path, "r") as file:
-                self.json_data = json.load(file)
-        except FileNotFoundError:
-            self.material_type = "error"
-            self.texture = "error"
-            self.height = 0
-            self.attributes = []
-            return
-        self.material_type = self.json_data["material_type"]
-        self.texture = self.json_data["texture"]
-        self.height = self.json_data["height"]
-        self.attributes = self.json_data["attributes"]
+        self.json_data = json_read(self.material_path)
 
-class PlayerEntity(Material):
-    def __init__(self, color):
-        super().__init__("player")
-        self.color = color
+        self.material_type = self.json_data.get("material_type", "block")
+        self.texture = self.json_data.get("texture", "water")
         self.orientation = 0
 
-class Entity(Material):
-    def __init__(self, material_id):
-        super().__init__(material_id)
-
-# test = StackController("sand")
-# print("\n\n")
-# print(test.getTextures())
-# print(test.getWalkables())
-# print(test.getLayers())
-# print(test.getMaterial("player"))
-# test.addMaterial(PlayerEntity("green"))
-# print("\n")
-# print(test.getTextures())
-# print(test.getWalkables())
-# print(test.getLayers())
-# print(test.getMaterial("player"))
+        self.height = self.json_data.get("height", 0)
+        self.attributes = self.json_data.get("attributes", [])

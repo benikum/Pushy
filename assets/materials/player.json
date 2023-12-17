@@ -1,5 +1,5 @@
 {
-    "material_type": "entity",
+    "material_type": "player",
     "texture": "pushy",
     "height": 1,
     "attributes": [

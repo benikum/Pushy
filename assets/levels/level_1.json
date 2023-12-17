@@ -26,15 +26,15 @@
   "entities": [
     {
       "position": [6, 6],
-      "id": "box"
+      "material_id": "box"
     },
     {
       "position": [7, 6],
-      "id": "box"
+      "material_id": "box"
     },
     {
       "position": [7, 7],
-      "id": "box"
+      "material_id": "box"
     }
   ]
 }

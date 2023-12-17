@@ -2,13 +2,13 @@ import pygame
 # from pygame.locals import *
 import os
 import sys
-import json
 from data.game import LevelMapController
 from data.graphics import GameScreenController
 from data.userinput import PlayerController
+from data.file_ctrl import json_read
 
 # check if all files are there
-necessary_files = [
+NECESSARY_FILES = [
     "assets",
     "assets/settings.json",
     "assets/lang",
@@ -16,7 +16,7 @@ necessary_files = [
     "assets/materials",
     "assets/textures"]
 corrupt_files = []
-for file_path in necessary_files:
+for file_path in NECESSARY_FILES:
     found = os.path.exists(file_path)
     if not found:
         corrupt_files.append(file_path)
@@ -26,17 +26,16 @@ if len(corrupt_files) > 0:
 pygame.init()
 clock = pygame.time.Clock()
 
-with open("assets/settings.json", "r") as file:
-    settings_json = json.load(file)
+settings_json = json_read("assets/settings.json")
 
-def loadLevel(level_id):
+def load_level(level_id):
     global level_map_controller, game_screen_controller, player_controller
     
     level_map_controller = LevelMapController(level_id)
-    game_screen_controller = GameScreenController(level_map_controller, settings_json["resolution"])
+    game_screen_controller = GameScreenController(level_map_controller, settings_json.get("resolution", [600, 800]), level_map_controller.level_name)
     player_controller = PlayerController(level_map_controller)
 
-loadLevel("level_1")
+load_level("level_1")
 
 while True:
     for event in pygame.event.get():
@@ -53,6 +52,6 @@ while True:
             elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                 player_controller.move([1, 0])
             elif event.key == pygame.K_r:
-                loadLevel(level_map_controller.map_id)
+                load_level(level_map_controller.map_id)
     game_screen_controller.draw_screen()
     clock.tick(10)
