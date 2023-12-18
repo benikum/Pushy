@@ -15,11 +15,11 @@ class LevelMapController:
         self.board_width = self.json_data.get("width", 1)
         self.board_height = self.json_data.get("height", 1)
         
-        self.compile_map()
-        self.compile_entities()
-
         self.start_pos = self.get_valid_pos(self.json_data.get("start", [0, 0]))
         self.finish_pos = self.get_valid_pos(self.json_data.get("finish", [0, 0]))
+        
+        self.compile_map()
+        self.compile_entities()
 
     def is_valid_pos(self, position):
         return isinstance(position, list) and len(position) == 2 \
@@ -58,20 +58,18 @@ class LevelMapController:
             for tile in key_row:
                 mat_row.append(StackController(materials[tile]))
             self.map.append(mat_row)
+        self.map[self.finish_pos[1]][self.finish_pos[0]].materials.append(Material("finish"))
     
     def compile_entities(self):
         # loads entities from level.json into self.map
-        self.entity_materials = dict()
         for entity in self.json_data.get("entities", []):
             # check if entity is valid
             if (not isinstance(entity, dict)) or (not ("position" in entity) and ("id" in entity)):
                 continue
             position = self.get_valid_pos(entity["position"])
             entity_id = entity["material_id"]
-            if not entity_id in self.entity_materials:
-                self.entity_materials[entity_id] = Material(entity_id)
             # add entity in stack
-            self.map[position[1]][position[0]].materials.append(self.entity_materials[entity_id])
+            self.map[position[1]][position[0]].materials.append(Material(entity_id))
 
     def move_entity(self, material_id, cur_pos, rel_pos):
         # check if valid
@@ -133,10 +131,15 @@ class LevelMapController:
                     cur_stack.materials.pop(-1)
                     return new_pos
         return cur_pos
+    
+    def event_listener(self):
+        if "player" in [i.material_type for i in self.map[self.finish_pos[1]][self.finish_pos[0]].materials]:
+            sys.exit()
 
 class StackController():
     def __init__(self, material_id):
         self.materials = [Material(material_id)]
+        self.listener = []
     def get_textures(self):
         return list([i.texture, i.orientation] for i in self.materials)
     def get_entity_attributes(self):
@@ -160,12 +163,3 @@ class Material:
 
         self.height = self.json_data.get("height", 0)
         self.attributes = self.json_data.get("attributes", [])
-
-# test = StackController("water")
-# test.materials.append(Material("box"))
-# print("\n")
-# print(test.get_entity_attributes())
-# test2 = StackController("sand")
-# test2.materials.append(Material("player"))
-# print("\n")
-# print(test2.get_entity_attributes())

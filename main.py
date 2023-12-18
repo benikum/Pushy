@@ -13,19 +13,22 @@ NECESSARY_FILES = [
     "assets/lang",
     "assets/levels",
     "assets/materials",
-    "assets/textures"]
-corrupt_files = []
-for file_path in NECESSARY_FILES:
-    found = os.path.exists(file_path)
-    if not found:
-        corrupt_files.append(file_path)
+    "assets/textures",
+    "data",
+    "data/file_ctrl.py",
+    "data/game.py",
+    "data/graphics.py",
+    "data/userinput.py"]
+corrupt_files = [file_path for file_path in NECESSARY_FILES if not os.path.exists(file_path)]
 if len(corrupt_files) > 0:
+    print("missing files: ", corrupt_files)
     sys.exit()
 
 pygame.init()
 clock = pygame.time.Clock()
 
 settings_json = json_read("assets/settings.json")
+key_list = {"w":pygame.K_w,"a":pygame.K_a,"s":pygame.K_s,"d":pygame.K_d,"r":pygame.K_r,}
 
 def load_level(level_id):
     global level_map_controller, game_screen_controller, player_controller
@@ -42,15 +45,15 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w or event.key == pygame.K_UP:
+            if event.key == key_list.get(settings_json.get("move_up", "w"), pygame.K_w):
                 player_controller.move([0, -1])
-            elif event.key == pygame.K_a or event.key == pygame.K_LEFT:
+            elif event.key == key_list.get(settings_json.get("move_left", "a"), pygame.K_a):
                 player_controller.move([-1, 0])
-            elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
+            elif event.key == key_list.get(settings_json.get("move_down", "s"), pygame.K_s):
                 player_controller.move([0, 1])
-            elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+            elif event.key == key_list.get(settings_json.get("move_right", "d"), pygame.K_d):
                 player_controller.move([1, 0])
-            elif event.key == pygame.K_r:
+            elif event.key == key_list.get(settings_json.get("game_restart", "r"), pygame.K_r):
                 load_level(level_map_controller.map_id)
     game_screen_controller.draw_screen()
     clock.tick(10)

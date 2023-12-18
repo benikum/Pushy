@@ -24,7 +24,10 @@ class GameScreenController:
                 tile = self.game_instance.map[y][x]
                 pos_x = x * self.block_size
                 pos_y = y * self.block_size
-                for i in tile.get_textures():
+
+                texture_list = tile.get_textures()
+                layer_height = tile.get_entity_attributes()[2]
+                for i in texture_list:
                     if not i[0] in self.materials:
                         self.materials[i[0]] = Texture(i[0])
                     self.materials[i[0]].blitTexture(self.game_window, (pos_x, pos_y), self.block_size, i[1])
