@@ -1,19 +1,21 @@
 {
-  "name": "Box-Insel",
+  "name": "Inselparadies",
   "width": 16,
-  "height": 10,
+  "height": 12,
   "tile_map": {
     "map": [
-      "AAAAAAAAAAAAAAAA",
-      "AAAAAAAAAAAAAABB",
+      "AAAAAAAAAABBBBBB",
+      "AAAAAAAAAAAABBBB",
       "AAAAABBBBAAAABBB",
       "AAABBBBBBAAAABBB",
-      "AAABCCCBBBAAABBB",
-      "AABBCCCBBBAAABBB",
-      "AABCCCCCBBAAAABB",
-      "ABCCCCCCBBBAAAAA",
-      "ABCCCCCCCBBBBAAA",
-      "ABCCCCCCCBBBBBAA"
+      "BBBBBBBBBBAAABBB",
+      "BBBBCCBBBBAAABBB",
+      "BCCCCCCBBBAAAABB",
+      "CCCCCCCBBBBAAAAA",
+      "CCCCCCCCBBBBAAAA",
+      "CCCCCCCCCBBBBAAA",
+      "CCCCCCCCCCCBBBBA",
+      "CCCCCCCCCCCCBBBB"
     ],
     "materials": {
       "A": "water",
@@ -21,19 +23,19 @@
       "C": "grass"
     }
   },
-  "start": [3, 8],
+  "start": [3, 10],
   "finish": [14, 3],
   "entities": [
+    {
+      "position": [5, 6],
+      "material_id": "box"
+    },
     {
       "position": [6, 6],
       "material_id": "box"
     },
     {
-      "position": [7, 6],
-      "material_id": "box"
-    },
-    {
-      "position": [7, 7],
+      "position": [6, 7],
       "material_id": "box"
     }
   ]

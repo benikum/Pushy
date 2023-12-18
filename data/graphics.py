@@ -1,22 +1,29 @@
+import sys
+if __name__ == "__main__":
+    sys.exit()
+
 import pygame
 
 class GameScreenController:
     def __init__(self, game_instance, resolution, header_string = "Pushy Game"):
         self.game_instance = game_instance
 
-        self.block_size = resolution[0] / game_instance.board_width
+        block_size = resolution[0] / game_instance.board_width
+        if block_size * game_instance.board_height > resolution[1]:
+            block_size = resolution[1] / game_instance.board_height
+        self.block_size = int(block_size)
 
         self.game_window = pygame.display.set_mode(resolution)
         pygame.display.set_caption(header_string)
 
-        self.materials = {}
+        self.materials = dict()
     def draw_screen(self):
         self.game_window.fill((0, 0, 0))
-        for h in range(self.game_instance.board_height):
-            for w in range(self.game_instance.board_width):
-                tile = self.game_instance.map[h][w]
-                pos_x = w * self.block_size
-                pos_y = h * self.block_size
+        for y in range(self.game_instance.board_height):
+            for x in range(self.game_instance.board_width):
+                tile = self.game_instance.map[y][x]
+                pos_x = x * self.block_size
+                pos_y = y * self.block_size
                 for i in tile.get_textures():
                     if not i[0] in self.materials:
                         self.materials[i[0]] = Texture(i[0])

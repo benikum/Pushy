@@ -1,4 +1,7 @@
-from os import walk
+import sys
+if __name__ == "__main__":
+    sys.exit()
+
 from data.file_ctrl import json_read
 
 class LevelMapController:
@@ -85,26 +88,40 @@ class LevelMapController:
         new_stack = self.map[new_pos[1]][new_pos[0]]
 
         # parallel lists
-        cur_type, cur_id, cur_height, cur_walk = cur_stack.get_entity_attributes()
-        new_type, new_id, new_height, new_walk = new_stack.get_entity_attributes()
+        cur_entities = cur_stack.get_entity_attributes()
+        new_entities = new_stack.get_entity_attributes()
+
+        # cur_type = cur_entities[0]
+        # cur_id = cur_entities[1]
+        cur_height = cur_entities[2]
+        # cur_walk = cur_entities[3]
+        cur_move = cur_entities[4]
+
+        # new_type = new_entities[0]
+        # new_id = new_entities[1]
+        new_height = new_entities[2]
+        new_walk = new_entities[3]
+        new_move = new_entities[4]
         
-        # cur_material_layer = -1
-        # for i, id in enumerate(cur_id):
-        #     if id == material_id:
-        #         cur_material_layer = i
-        #         break
-        # print(cur_height, new_height, cur_id, new_id, cur_material_layer, sum(cur_height[:cur_material_layer]))
-        # print(cur_material_layer)
         # das material soll auf den new_stack verschobenw werden, wenn die höhe der material_id größer gleich von dem maximalen höhe des new_stack ist
         if sum(new_height) <= (sum(cur_height)-cur_height[-1]) and new_walk[-1]:
             new_stack.materials.append(cur_stack.materials[-1])
             cur_stack.materials.pop(-1)
             return new_pos
-        if (sum(new_height)-new_height[-1]) == (sum(cur_height)-cur_height[-1]) and new_height[-1] == cur_height[-1] and new_walk[-2]:
+        if (sum(new_height)-new_height[-1]) == (sum(cur_height) - cur_height[-1]) \
+        and new_height[-1] == cur_height[-1] \
+        and new_walk[-2] \
+        and new_move[-1] and cur_move[-1]:
             far_pos = [new_pos[0] + rel_pos[0], new_pos[1] + rel_pos[1]]
             if self.is_valid_pos(far_pos):
                 far_stack = self.map[far_pos[1]][far_pos[0]]
-                far_type, far_id, far_height, far_walk = far_stack.get_entity_attributes()
+                far_entities = far_stack.get_entity_attributes()
+
+                # far_type = far_entities[0]
+                # far_id = far_entities[1]
+                far_height = far_entities[2]
+                # far_walk = far_entities[3]
+                # far_move = far_entities[4]
                 
                 # if box can move to far_stack
                 if sum(far_height) <= (sum(new_height)-new_height[-1]):
@@ -127,8 +144,9 @@ class StackController():
         id_list = [i.material_id for i in self.materials]
         height_list = [i.height for i in self.materials]
         walk_list = [("walk" in i.attributes) for i in self.materials]
+        move_list = [("move" in i.attributes) for i in self.materials]
 
-        return type_list, id_list, height_list, walk_list
+        return type_list, id_list, height_list, walk_list, move_list
 
 class Material:
     def __init__(self, material_id):
@@ -142,3 +160,12 @@ class Material:
 
         self.height = self.json_data.get("height", 0)
         self.attributes = self.json_data.get("attributes", [])
+
+# test = StackController("water")
+# test.materials.append(Material("box"))
+# print("\n")
+# print(test.get_entity_attributes())
+# test2 = StackController("sand")
+# test2.materials.append(Material("player"))
+# print("\n")
+# print(test2.get_entity_attributes())
