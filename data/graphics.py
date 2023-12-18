@@ -22,7 +22,7 @@ class GameScreenController:
                         self.materials[i[0]] = Texture(i[0])
                     self.materials[i[0]].blitTexture(self.game_window, (pos_x, pos_y), self.block_size, i[1])
         for t in list(self.materials.values()):
-            t.nextFrame()
+            t.next_frame()
         pygame.display.flip()
 
 class Texture:

@@ -84,37 +84,38 @@ class LevelMapController:
         cur_stack = self.map[cur_pos[1]][cur_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
 
-        # type, height, walkable
-        cur_type, cur_height, cur_walk = cur_stack.get_entity_attributes()
-        new_type, new_height, new_walk = new_stack.get_entity_attributes()
-
-        if 
-
+        # parallel lists
+        cur_type, cur_id, cur_height, cur_walk = cur_stack.get_entity_attributes()
+        new_type, new_id, new_height, new_walk = new_stack.get_entity_attributes()
+        
+        # cur_material_layer = -1
+        # for i, id in enumerate(cur_id):
+        #     if id == material_id:
+        #         cur_material_layer = i
+        #         break
+        # print(cur_height, new_height, cur_id, new_id, cur_material_layer, sum(cur_height[:cur_material_layer]))
+        # print(cur_material_layer)
+        # das material soll auf den new_stack verschobenw werden, wenn die höhe der material_id größer gleich von dem maximalen höhe des new_stack ist
+        if sum(new_height) <= (sum(cur_height)-cur_height[-1]) and new_walk[-1]:
+            new_stack.materials.append(cur_stack.materials[-1])
+            cur_stack.materials.pop(-1)
+            return new_pos
+        if (sum(new_height)-new_height[-1]) == (sum(cur_height)-cur_height[-1]) and new_height[-1] == cur_height[-1] and new_walk[-2]:
+            far_pos = [new_pos[0] + rel_pos[0], new_pos[1] + rel_pos[1]]
+            if self.is_valid_pos(far_pos):
+                far_stack = self.map[far_pos[1]][far_pos[0]]
+                far_type, far_id, far_height, far_walk = far_stack.get_entity_attributes()
+                
+                # if box can move to far_stack
+                if sum(far_height) <= (sum(new_height)-new_height[-1]):
+                    # move box
+                    far_stack.materials.append(new_stack.materials[-1])
+                    new_stack.materials.pop(-1)
+                    # move player
+                    new_stack.materials.append(cur_stack.materials[-1])
+                    cur_stack.materials.pop(-1)
+                    return new_pos
         return cur_pos
-    
-
-        # # step to next top
-        # if new_walkables[-1] and new_layers[-1] <= current_layers[-2]:
-        #     # move player
-        #     new_stack.addMaterial(cur_stack.getMaterial(material_id))
-        #     cur_stack.delMaterial(material_id)
-        #     return new_pos
-        # # step to next block and move box
-        # if len(new_walkables) > 1 and new_walkables[-2] and new_layers[-1] == current_layers[-1]:
-        #     # calculate far_stack
-        #     far_pos = [new_pos[0] + rel_pos[0], new_pos[1] + rel_pos[1]]
-        #     if self.isValidPos(far_pos):
-        #         far_stack = self.map[far_pos[1]][far_pos[0]]
-        #         far_layers = far_stack.getLayers()
-        #         # if box can move to far_stack
-        #         if new_layers[-2] <= far_layers[-1]:
-        #             # move box
-        #             far_stack.addMaterial(new_stack.materials[-1])
-        #             far_stack.materials.pop(-1)
-        #             # move player
-        #             new_stack.addMaterial(cur_stack.getMaterial(material_id))
-        #             cur_stack.delMaterial(material_id)
-        #             return new_pos
 
 class StackController():
     def __init__(self, material_id):
@@ -123,10 +124,11 @@ class StackController():
         return list([i.texture, i.orientation] for i in self.materials)
     def get_entity_attributes(self):
         type_list = [i.material_type for i in self.materials]
+        id_list = [i.material_id for i in self.materials]
         height_list = [i.height for i in self.materials]
         walk_list = [("walk" in i.attributes) for i in self.materials]
 
-        return type_list, height_list, walk_list
+        return type_list, id_list, height_list, walk_list
 
 class Material:
     def __init__(self, material_id):
