@@ -133,8 +133,10 @@ class LevelMapController:
         return cur_pos
     
     def event_listener(self):
+        event_list = []
         if "player" in [i.material_type for i in self.map[self.finish_pos[1]][self.finish_pos[0]].materials]:
-            sys.exit()
+            event_list.append("win")
+        return event_list
 
 class StackController():
     def __init__(self, material_id):

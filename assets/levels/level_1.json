@@ -37,6 +37,11 @@
     {
       "position": [3, 8],
       "material_id": "box"
+    },
+    {
+      "position": [3, 3],
+      "material_id": "portal",
+      "teleport": [15, 11]
     }
   ]
 }

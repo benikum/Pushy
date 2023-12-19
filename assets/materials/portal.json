@@ -1,0 +1,8 @@
+{
+    "material_type": "event",
+    "texture": "portal",
+    "height": 0,
+    "attributes": [
+        "walk"
+    ]
+}
