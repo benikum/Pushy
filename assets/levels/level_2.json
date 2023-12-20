@@ -1,0 +1,48 @@
+{
+  "name": "Inselparadies",
+  "tile_map": [
+    {
+      "map": [
+        "AAAAAAABBBBBBCCC",
+        "AAAAAAAAABBBBBCC",
+        "BBBAAAAAAAAABBBB",
+        "BBBBBAAAAAAAAABB",
+        "BBBBBBBBAAAAAAAA",
+        "BBBBBBBBBAAAAAAA",
+        "CCCBBBBBBBAAAAAA",
+        "CCCCCCBBBBBBAAAA",
+        "CCCCCCCCBBBBBBAA",
+        "CCCCCCCCCCBBBBBB",
+        "CCCCCCCCCCCCCBBB",
+        "CCCCCCCCCCCCCCCC"
+      ],
+      "materials": {
+        "A": "water",
+        "B": "sand",
+        "C": "grass"
+      }
+    },
+    {
+      "map": [
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000020",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0000000000000000",
+        "0300000000000000",
+        "0330000010000000",
+        "0000000000000000"
+      ],
+      "materials": {
+        "0": "",
+        "1": "start",
+        "2": "finish",
+        "3": "box"
+      }
+    }
+  ]
+}

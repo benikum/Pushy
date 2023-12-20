@@ -101,7 +101,6 @@ class LevelMapController:
         new_walk = new_entities[3]
         new_move = new_entities[4]
         
-        # das material soll auf den new_stack verschobenw werden, wenn die höhe der material_id größer gleich von dem maximalen höhe des new_stack ist
         if sum(new_height) <= (sum(cur_height)-cur_height[-1]) and new_walk[-1]:
             new_stack.materials.append(cur_stack.materials[-1])
             cur_stack.materials.pop(-1)
@@ -122,7 +121,7 @@ class LevelMapController:
                 # far_move = far_entities[4]
                 
                 # if box can move to far_stack
-                if sum(far_height) <= (sum(new_height)-new_height[-1]):
+                if sum(far_height) <= (sum(new_height) - new_height[-1]):
                     # move box
                     far_stack.materials.append(new_stack.materials[-1])
                     new_stack.materials.pop(-1)
@@ -133,8 +132,10 @@ class LevelMapController:
         return cur_pos
     
     def event_listener(self):
+        events = []
         if "player" in [i.material_type for i in self.map[self.finish_pos[1]][self.finish_pos[0]].materials]:
-            sys.exit()
+            events.append("win")
+        return events
 
 class StackController():
     def __init__(self, material_id):
