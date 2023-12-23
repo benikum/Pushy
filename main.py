@@ -1,12 +1,6 @@
-import pygame
 import os
 import sys
-from data.game import LevelMapController
-from data.graphics import GameScreenController
-from data.userinput import PlayerController
-from data.file_ctrl import json_read, list_file_names
 
-# check if all files are there
 NECESSARY_FILES = [
     "assets",
     "assets/settings.json",
@@ -24,12 +18,20 @@ if len(corrupt_files) > 0:
     print("missing files: ", corrupt_files)
     sys.exit()
 
+import pygame
+from data.game import LevelMapController
+from data.graphics import GameScreenController
+from data.userinput import PlayerController
+from data.file_ctrl import json_read, list_file_names, compile_all_images
+
 SETTINGS_DATA = json_read("assets/settings.json")
-KEY_LIST = {"w":pygame.K_w,"a":pygame.K_a,"s":pygame.K_s,"d":pygame.K_d,"r":pygame.K_r,}
-LEVEL_LIST = list_file_names("assets/levels")
+LEVEL_LIST = [os.path.splitext(file)[0] for file in list_file_names("assets/levels")]
 if len(LEVEL_LIST) == 0:
     print("no levels")
     sys.exit()
+compile_all_images()
+
+current_level_index = 0
 
 def load_level():
     global current_level_index, level_map_controller, game_screen_controller, player_controller
@@ -45,7 +47,6 @@ def next_level():
     current_level_index = current_level_index + 1 if not current_level_index == len(LEVEL_LIST) -1 else 0
     load_level()
 
-current_level_index = 1
 load_level()
 
 pygame.init()
@@ -53,22 +54,23 @@ clock = pygame.time.Clock()
 
 while True:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT \
+        or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == KEY_LIST.get(SETTINGS_DATA.get("move_up", "w"), pygame.K_w):
+            if event.key == getattr(pygame, "K_" + SETTINGS_DATA.get("move_up", "w")):
                 player_controller.move([0, -1])
-            elif event.key == KEY_LIST.get(SETTINGS_DATA.get("move_left", "a"), pygame.K_a):
+            elif event.key == getattr(pygame, "K_" + SETTINGS_DATA.get("move_left", "a")):
                 player_controller.move([-1, 0])
-            elif event.key == KEY_LIST.get(SETTINGS_DATA.get("move_down", "s"), pygame.K_s):
+            elif event.key == getattr(pygame, "K_" + SETTINGS_DATA.get("move_down", "s")):
                 player_controller.move([0, 1])
-            elif event.key == KEY_LIST.get(SETTINGS_DATA.get("move_right", "d"), pygame.K_d):
+            elif event.key == getattr(pygame, "K_" + SETTINGS_DATA.get("move_right", "d")):
                 player_controller.move([1, 0])
-            elif event.key == KEY_LIST.get(SETTINGS_DATA.get("game_restart", "r"), pygame.K_r):
+            elif event.key == getattr(pygame, "K_" + SETTINGS_DATA.get("game_restart", "r")):
                 load_level()
     for event in level_map_controller.event_listener():
         if event == "win":
             next_level()
     game_screen_controller.draw_screen()
-    clock.tick(10)
+    clock.tick(60)

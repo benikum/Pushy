@@ -5,5 +5,3 @@ mehr level
 win condition / levelscreen / automatisch nächstes level
 spielstandspeicherung als json datei (verschlüsselt)
 player textur farben
-animationen
-mehr fps

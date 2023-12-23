@@ -34,13 +34,11 @@ class LevelMapController:
     def compile_map(self):
         # loads level.json into a list with classes
         self.map = []
-        raw_map = self.json_data["tile_map"]
-        board = raw_map["map"]
-        materials = raw_map["materials"]
+        raw_map = self.json_data.get("tile_map", {})
+        board = raw_map.get("map", [])
+        materials = raw_map.get("materials", {})
 
         # cut board height
-        if len(materials) == 0:
-            materials = {"A":"sand"}
         while len(board) > self.board_height:
             board.pop(-1)
         while len(board) < self.board_height:
@@ -56,7 +54,7 @@ class LevelMapController:
             # convert index to stackcontroller
             mat_row = []
             for tile in key_row:
-                mat_row.append(StackController(materials[tile]))
+                mat_row.append(StackController(materials.get(tile, "water")))
             self.map.append(mat_row)
         self.map[self.finish_pos[1]][self.finish_pos[0]].materials.append(Material("finish"))
     
@@ -101,7 +99,7 @@ class LevelMapController:
         new_walk = new_entities[3]
         new_move = new_entities[4]
         
-        if sum(new_height) <= (sum(cur_height)-cur_height[-1]) and new_walk[-1]:
+        if sum(new_height) <= (sum(cur_height) - cur_height[-1]) and new_walk[-1]:
             new_stack.materials.append(cur_stack.materials[-1])
             cur_stack.materials.pop(-1)
             return new_pos

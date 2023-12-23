@@ -11,7 +11,7 @@ def json_read(file_path):
                     return json_data
         except Exception as error:
             print("Unexpected Error: " + str(error))
-    return dict()
+    return {}
 
 def list_file_names(folder_path):
     file_names = []
@@ -50,32 +50,31 @@ def is_same_color(base_value, compare_value, tolerance=16):
     difference_value = max(abs(base_value[i] - compare_value[i]) for i in range(3))
     return difference_value <= tolerance
 
-def save_tilemap(level_map, new_name = "new_level"):
-    new_name = str(new_name)
-    new_level_path = "assets/levels/" + new_name + ".json"
+def save_tilemap(level_map, level_name = "new_level"):
+    new_level_path = "assets/levels/" + level_name + ".json"
     if os.path.exists(new_level_path):
         return False
 
     tile_map = [str().join(row) for row in level_map]
 
-    level_layout = dict()
-    level_layout["tile_map"] = dict()
+    level_layout = {}
     level_layout["start"] = [0, 0]
     level_layout["finish"] = [0, 0]
     level_layout["entities"] = []
 
-    level_layout["name"] = new_name
+    level_layout["name"] = level_name
     level_layout["width"] = len(level_map[0])
     level_layout["height"] = len(level_map)
+    level_layout["tile_map"] = {}
     level_layout["tile_map"]["map"] = tile_map
     print(level_layout)
 
     with open(new_level_path, 'w') as new_file:
-        json.dump(level_layout, new_file, indent=2)
+        json.dump(level_layout, new_file)
     return True
 
 def compile_all_images():
-    for file in list_file_names(__file__):
+    for file in list_file_names("assets"):
         name, extension = file.split(".")
         if extension == "png":
-            save_tilemap(get_tile_map(file), name)
+            save_tilemap(get_tile_map("assets/levels" + file), name)
