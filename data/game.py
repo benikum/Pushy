@@ -5,70 +5,52 @@ if __name__ == "__main__":
 from data.file_ctrl import json_read
 
 class LevelMapController:
-    def __init__(self, map_id):
-        self.map_id = map_id
-        self.map_path = "assets/levels/" + self.map_id + ".json"
-        self.json_data = json_read(self.map_path)
+    def __init__(self, level_id: str):
+        # load map from level data
+        self.id = level_id
+        self.path = "assets/levels/" + self.id + ".json"
+        self.data = json_read(self.path)
         
-        self.level_name = self.json_data.get("name", "NAME")
+        self.level_name = self.data.get("name", self.id)
 
-        self.board_width = self.json_data.get("width", 1)
-        self.board_height = self.json_data.get("height", 1)
+        self.map_width = self.data.get("width", 1)
+        self.map_height = self.data.get("height", 1)
         
-        self.start_pos = self.get_valid_pos(self.json_data.get("start", [0, 0]))
-        self.finish_pos = self.get_valid_pos(self.json_data.get("finish", [0, 0]))
+        self.start_pos = self.get_valid_pos(self.data.get("start", [0, 0]))
+        self.finish_pos = self.get_valid_pos(self.data.get("finish", [0, 0]))
         
-        self.compile_map()
-        self.compile_entities()
+        self.load_map()
 
-    def is_valid_pos(self, position):
+    def is_valid_pos(self, position: list):
         return isinstance(position, list) and len(position) == 2 \
-        and (0 <= position[0] < self.board_width) \
-        and (0 <= position[1] < self.board_height)
+        and (0 <= position[0] < self.map_width) \
+        and (0 <= position[1] < self.map_height)
 
-    def get_valid_pos(self, position):
+    def get_valid_pos(self, position: list):
         if self.is_valid_pos(position):
             return position
         return [0, 0]
     
-    def compile_map(self):
-        # loads level.json into a list with classes
-        self.map = []
-        raw_map = self.json_data.get("tile_map", {})
-        board = raw_map.get("map", [])
-        materials = raw_map.get("materials", {})
-
-        # cut board height
-        while len(board) > self.board_height:
-            board.pop(-1)
-        while len(board) < self.board_height:
-            board.append([])
-
-        for row in board:
-            # cut board width
-            key_row = list(row)
-            while len(key_row) > self.board_width:
-                key_row.pop(-1)
-            while len(key_row) < self.board_width:
-                key_row.append(list(materials.keys())[0])
-            # convert index to stackcontroller
-            mat_row = []
-            for tile in key_row:
-                mat_row.append(StackController(materials.get(tile, "water")))
-            self.map.append(mat_row)
-        self.map[self.finish_pos[1]][self.finish_pos[0]].materials.append(Material("finish"))
+    def set_length(self, data: list, lenght: int, filler = "A"):
+        while len(data) > lenght:
+            data.pop(-1)
+        while len(data) < lenght:
+            data.append(filler)
+        return
     
-    def compile_entities(self):
-        # loads entities from level.json into self.map
-        for entity in self.json_data.get("entities", []):
-            # check if entity is valid
-            if (not isinstance(entity, dict)) or (not ("position" in entity) and ("id" in entity)):
-                continue
-            position = self.get_valid_pos(entity["position"])
-            entity_id = entity["material_id"]
-            # add entity in stack
-            self.map[position[1]][position[0]].materials.append(Material(entity_id))
-
+    def load_map(self):
+        # loads level.json into a list with classes
+        raw_map = self.data.get("level", {})
+        materials = raw_map.get("materials", {})
+        
+        base_map = self.set_length(raw_map.get("map", []), self.map_height)
+        base_map = [self.set_length(list(item), self.map_width) for item in base_map]
+        
+        object_map = self.set_length(raw_map.get("objects", []), self.map_height)
+        object_map = [self.set_length(list(item), self.map_width) for item in object_map]
+        
+        self.map = [StackController(materials.get(base_item, "water")) for base_item, object_item in zip(zip(base_map, object_map))]
+            
     def move_entity(self, material_id, cur_pos, rel_pos):
         # check if valid
         if not self.is_valid_pos(cur_pos):
@@ -136,11 +118,15 @@ class LevelMapController:
         return events
 
 class StackController():
-    def __init__(self, material_id):
-        self.materials = [Material(material_id)]
-        self.listener = []
+    material_cache = {}
+    def __init__(self, *material_ids: str):
+        for id in material_ids:
+            if id not in list(self.material_cache.keys()):
+                self.material_cache[id] = Material(id)
+        self.materials = [self.material_cache[item] for item in material_ids]
     def get_textures(self):
         return list([i.texture, i.orientation] for i in self.materials)
+    #TODO 
     def get_entity_attributes(self):
         type_list = [i.material_type for i in self.materials]
         id_list = [i.material_id for i in self.materials]
@@ -152,13 +138,13 @@ class StackController():
 
 class Material:
     def __init__(self, material_id):
-        self.material_id = material_id
-        self.material_path = "assets/materials/" + self.material_id + ".json"
-        self.json_data = json_read(self.material_path)
+        self.id = material_id
+        self.path = "assets/materials/" + self.id + ".json"
+        self.data = json_read(self.path)
 
-        self.material_type = self.json_data.get("material_type", "block")
-        self.texture = self.json_data.get("texture", "water")
+        # self.type = self.material_data.get("material_type", "block")
+        self.texture = self.material_data.get("texture", "water")
         self.orientation = 0
 
-        self.height = self.json_data.get("height", 0)
-        self.attributes = self.json_data.get("attributes", [])
+        self.height = self.material_data.get("height", 0)
+        self.attributes = self.material_data.get("attributes", [])

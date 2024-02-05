@@ -31,7 +31,7 @@ if len(LEVEL_LIST) == 0:
     sys.exit()
 compile_all_images()
 
-current_level_index = 0
+current_level_index = 1
 
 def load_level():
     global current_level_index, level_map_controller, game_screen_controller, player_controller

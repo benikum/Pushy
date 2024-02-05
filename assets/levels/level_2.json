@@ -1,0 +1,44 @@
+{
+  "name": "Sumpflandschaft",
+  "width": 16,
+  "height": 12,
+  "level": {
+    "map": [
+      "BBBBBBBBBCCCCCCC",
+      "AAABBBBBBCCCCCCC",
+      "AAAAABBBBBCCCCCC",
+      "AAAAAAABBBBBBCCC",
+      "BAAAAAAAABBBBBBB",
+      "BBBAAAAAAAABBBBB",
+      "CBBAAAAAAAAAAAAA",
+      "CBBBAAAAAAAAAABB",
+      "CCBBBBAAAAAAABBB",
+      "CCCBBBBBAAAABBBC",
+      "CCCBBBBBAAABBBBC",
+      "CCCCBBBBBAABBBCC"
+    ],
+    "objects": [
+      "----------------",
+      "-----#----------",
+      "----------------",
+      "----------------",
+      "----------------",
+      "----------------",
+      "--1-------------",
+      "----------------",
+      "----------------",
+      "----1-------1---",
+      "-%----1-----1---",
+      "----------------"
+    ],
+    "keys": {
+      "A": "water",
+      "B": "grass",
+      "C": "sand",
+      "%": "start",
+      "#": "finish",
+      "1": "box"
+
+    }
+  }
+}

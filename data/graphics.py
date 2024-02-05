@@ -3,52 +3,56 @@ if __name__ == "__main__":
     sys.exit()
 
 import pygame
+from data.game import LevelMapController
 
 class GameScreenController:
-    def __init__(self, game_instance, resolution, header_string = "Pushy Game"):
+    texture_cache = {}
+    def __init__(self, game_instance: LevelMapController, resolution: tuple, window_caption: str = "Pushy Game"):
         self.game_instance = game_instance
         self.game_window = pygame.display.set_mode(resolution)
-
-        self.block_size = resolution[0] // game_instance.board_width
-        if self.block_size * game_instance.board_height > resolution[1]:
-            self.block_size = resolution[1] // game_instance.board_height
+        
+        self.block_size = resolution[0] // game_instance.map_width
+        if self.block_size * game_instance.map_height > resolution[1]:
+            self.block_size = resolution[1] // game_instance.map_height
+        
+        self.x_offset = resolution[0] - (game_instance.map_width * self.block_size) // 2
+        self.y_offset = resolution[1] - (game_instance.map_height * self.block_size) // 2
         
         Texture.texture_size = self.block_size
         Texture.screen = self.game_window
-        pygame.transform.scale(Texture.SHADE_OVERLAY, (self.block_size, self.block_size))
-
-        pygame.display.set_caption(header_string)
-
-        self.texture_cache = {}
+        pygame.display.set_caption(window_caption)
+        
         self.last_tick = 0
+    
+    def load_texture(self, texture_id: str):
+        self.texture_cache[texture_id] = Texture(texture_id)
+    
     def draw_screen(self):
         self.game_window.fill((0, 0, 0))
-        for y in range(self.game_instance.board_height):
-            for x in range(self.game_instance.board_width):
+        for y in range(self.game_instance.map_height):
+            for x in range(self.game_instance.map_width):
                 texture_list = self.game_instance.map[y][x].get_textures()
 
-                pos_x = x * self.block_size
-                pos_y = y * self.block_size
+                pos_x = x * self.block_size + self.x_offset
+                pos_y = y * self.block_size + self.y_offset
 
-                for i in texture_list:
-                    if not i[0] in self.texture_cache:
-                        self.texture_cache[i[0]] = Texture(i[0])
-                    self.texture_cache[i[0]].draw_texture((pos_x, pos_y), i[1])
+                for texture in texture_list:
+                    self.texture_cache[texture[0]].draw_texture((pos_x, pos_y), texture[1])
+        
+        # FIXME
         for t in list(self.texture_cache.values()):
             new_tick = pygame.time.get_ticks()
             if new_tick - self.last_tick >= 80:
                 t.next_frame()
                 self.last_tick = new_tick
         pygame.display.flip()
+
 class Texture:
     # error fallback img
     ERROR_IMG = pygame.Surface((2, 2))
     ERROR_IMG.fill((255, 0, 255))
     ERROR_IMG.fill((0, 0, 0), rect=(1, 0, 1, 1))
     ERROR_IMG.fill((0, 0, 0), rect=(0, 1, 1, 1))
-
-    SHADE_OVERLAY = pygame.Surface((1, 1), pygame.SRCALPHA)
-    SHADE_OVERLAY.fill((0, 0, 0, 16))
 
     screen = None
     texture_size = None

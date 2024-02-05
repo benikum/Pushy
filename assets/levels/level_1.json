@@ -2,7 +2,7 @@
   "name": "Inselparadies",
   "width": 16,
   "height": 12,
-  "tile_map": {
+  "level": {
     "map": [
       "AAAAAAABBBBBBCCC",
       "AAAAAAAAABBBBBCC",
@@ -17,26 +17,27 @@
       "CCCCCCCCCCCCCBBB",
       "CCCCCCCCCCCCCCCC"
     ],
+    "objects": [
+      "----------------",
+      "----------------",
+      "--------------#-",
+      "----------------",
+      "----------------",
+      "----------------",
+      "----------------",
+      "--1-------------",
+      "--11------------",
+      "----------------",
+      "---%------------",
+      "----------------"
+    ],
     "materials": {
       "A": "water",
       "B": "sand",
-      "C": "grass"
+      "C": "grass",
+      "%": "start",
+      "#": "finish",
+      "1": "box"
     }
-  },
-  "start": [3, 10],
-  "finish": [14, 2],
-  "entities": [
-    {
-      "position": [2, 8],
-      "material_id": "box"
-    },
-    {
-      "position": [2, 7],
-      "material_id": "box"
-    },
-    {
-      "position": [3, 8],
-      "material_id": "box"
-    }
-  ]
+  }
 }
