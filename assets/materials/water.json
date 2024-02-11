@@ -1,6 +1,5 @@
 {
-    "material_type": "block",
+    "type": "block",
     "texture": "water",
-    "height": 0,
-    "attributes": []
+    "height": 0
 }

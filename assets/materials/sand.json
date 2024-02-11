@@ -1,5 +1,5 @@
 {
-    "material_type": "block",
+    "type": "block",
     "texture": "sand",
     "height": 1,
     "attributes": [

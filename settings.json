@@ -1,0 +1,15 @@
+{
+  "language": "en",
+  "resolution": [
+    800,
+    600
+  ],
+  "fullscreen": false,
+  "keybinds": {
+    "move_up": "w",
+    "move_down": "s",
+    "move_left": "a",
+    "move_right": "d",
+    "game_restart": "r"
+  }
+}

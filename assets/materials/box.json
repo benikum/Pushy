@@ -1,6 +1,6 @@
 {
-    "material_type": "entity",
-    "texture": "planks",
+    "type": "entity",
+    "texture": "log",
     "height": 1,
     "attributes": [
         "walk",

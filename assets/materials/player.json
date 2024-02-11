@@ -1,10 +1,12 @@
 {
-    "material_type": "player",
+    "type": "player",
     "texture": "pushy",
     "height": 1,
     "attributes": [
         "walk",
-        "move",
-        "control"
+        "move"
+    ],
+    "events": [
+        "block"
     ]
 }

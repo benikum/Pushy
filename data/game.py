@@ -2,149 +2,121 @@ import sys
 if __name__ == "__main__":
     sys.exit()
 
-from data.file_ctrl import json_read
+from data.file_ctrl import JSONReadError, InstanceCache, json_read
+
+class JSONFileCorrupt(Exception):
+    def __init__(self, msg="JSON file has missing data"):
+        self.msg = msg
+        super().__init__(self.msg)
 
 class LevelMapController:
     def __init__(self, level_id: str):
         # load map from level data
         self.id = level_id
-        self.path = "assets/levels/" + self.id + ".json"
-        self.data = json_read(self.path)
+        path = "assets/levels/" + self.id + ".json"
+        try:
+            self.data = json_read(path)
+        except JSONReadError:
+            raise JSONFileCorrupt("Cannot read JSON file: " + path)
         
-        self.level_name = self.data.get("name", self.id)
-
-        self.map_width = self.data.get("width", 1)
-        self.map_height = self.data.get("height", 1)
+        try:
+            self.level_name = self.data["name"]
+            self.map_width = self.data["width"]
+            self.map_height = self.data["height"]
+        except KeyError:
+            raise JSONFileCorrupt("Level File has missing data")
         
-        self.start_pos = self.get_valid_pos(self.data.get("start", [0, 0]))
-        self.finish_pos = self.get_valid_pos(self.data.get("finish", [0, 0]))
+        self.game_events = []
         
         self.load_map()
 
-    def is_valid_pos(self, position: list):
-        return isinstance(position, list) and len(position) == 2 \
-        and (0 <= position[0] < self.map_width) \
-        and (0 <= position[1] < self.map_height)
-
-    def get_valid_pos(self, position: list):
-        if self.is_valid_pos(position):
-            return position
-        return [0, 0]
-    
-    def set_length(self, data: list, lenght: int, filler = "A"):
-        while len(data) > lenght:
-            data.pop(-1)
-        while len(data) < lenght:
-            data.append(filler)
-        return
-    
+    def is_valid_pos(self, position):
+        return (0 <= position[0] < self.map_width) and (0 <= position[1] < self.map_height)
+        
     def load_map(self):
-        # loads level.json into a list with classes
-        raw_map = self.data.get("level", {})
-        materials = raw_map.get("materials", {})
-        
-        base_map = self.set_length(raw_map.get("map", []), self.map_height)
-        base_map = [self.set_length(list(item), self.map_width) for item in base_map]
-        
-        object_map = self.set_length(raw_map.get("objects", []), self.map_height)
-        object_map = [self.set_length(list(item), self.map_width) for item in object_map]
-        
-        self.map = [StackController(materials.get(base_item, "water")) for base_item, object_item in zip(zip(base_map, object_map))]
+        # loads level.json into a list
+        try:
+            raw_map: dict = self.data["level"]
+            materials: dict = raw_map["materials"]
             
-    def move_entity(self, material_id, cur_pos, rel_pos):
+            base_map = [list(row) for row in raw_map["map"]]
+            object_map = [list(item) for item in raw_map["objects"]]
+        except KeyError:
+            raise JSONFileCorrupt("Level file has missing map data")
+        
+        # checks if map data is the same 
+        if len(base_map) != self.map_height or len(object_map) != self.map_height:
+            raise JSONFileCorrupt("Map height invalid")
+        if any(len(row) != self.map_width for row in base_map) or any(len(row) != self.map_width for row in object_map):
+            raise JSONFileCorrupt("Map width invalid")
+        
+        try:
+            self.map = [[StackController(materials[item]) for item in row] for row in base_map]
+        except KeyError as ke:
+            raise JSONFileCorrupt("Missing material key: " + str(ke))
+        
+        for y, base_map_row, object_row in zip(range(self.map_height), self.map, object_map):
+            for x, item, object_id in zip(range(self.map_width), base_map_row, object_row):
+                # nothing there
+                if object_id == "-":
+                    continue
+                elif object_id == next(key for key, value in materials.items() if value == "start"):
+                    self.start_pos = (x, y)
+                    continue
+                elif object_id == next(key for key, value in materials.items() if value == "finish"):
+                    self.finish_pos = (x, y)
+                item.materials.append(StackController.material_cache.load_key(materials[object_id]))
+
+    def move_player(self, cur_pos, rel_pos):
         # check if valid
         if not self.is_valid_pos(cur_pos):
             return [0, 0]
-        if (not (isinstance(rel_pos, list) and len(rel_pos) == 2)) or rel_pos.count(0) == 2:
-            return cur_pos
         new_pos = [cur_pos[0] + rel_pos[0], cur_pos[1] + rel_pos[1]]
         if not self.is_valid_pos(new_pos):
+            print("new_pos invalid")
             return cur_pos
         
         # get StackController instances
         cur_stack = self.map[cur_pos[1]][cur_pos[0]]
         new_stack = self.map[new_pos[1]][new_pos[0]]
 
-        # parallel lists
-        cur_entities = cur_stack.get_entity_attributes()
-        new_entities = new_stack.get_entity_attributes()
-
-        # cur_type = cur_entities[0]
-        # cur_id = cur_entities[1]
-        cur_height = cur_entities[2]
-        # cur_walk = cur_entities[3]
-        cur_move = cur_entities[4]
-
-        # new_type = new_entities[0]
-        # new_id = new_entities[1]
-        new_height = new_entities[2]
-        new_walk = new_entities[3]
-        new_move = new_entities[4]
-        
-        if sum(new_height) <= (sum(cur_height) - cur_height[-1]) and new_walk[-1]:
+        if (sum([item.height for item in cur_stack.materials]) - cur_stack.materials[-1].height) >= sum(item.height for item in new_stack.materials) \
+        and ("walk" in new_stack.materials[-1].attributes):
+            # move the player
             new_stack.materials.append(cur_stack.materials[-1])
             cur_stack.materials.pop(-1)
             return new_pos
-        if (sum(new_height)-new_height[-1]) == (sum(cur_height) - cur_height[-1]) \
-        and new_height[-1] == cur_height[-1] \
-        and new_walk[-2] \
-        and new_move[-1] and cur_move[-1]:
-            far_pos = [new_pos[0] + rel_pos[0], new_pos[1] + rel_pos[1]]
-            if self.is_valid_pos(far_pos):
-                far_stack = self.map[far_pos[1]][far_pos[0]]
-                far_entities = far_stack.get_entity_attributes()
-
-                # far_type = far_entities[0]
-                # far_id = far_entities[1]
-                far_height = far_entities[2]
-                # far_walk = far_entities[3]
-                # far_move = far_entities[4]
-                
-                # if box can move to far_stack
-                if sum(far_height) <= (sum(new_height) - new_height[-1]):
-                    # move box
-                    far_stack.materials.append(new_stack.materials[-1])
-                    new_stack.materials.pop(-1)
-                    # move player
-                    new_stack.materials.append(cur_stack.materials[-1])
-                    cur_stack.materials.pop(-1)
-                    return new_pos
+        # far_pos = [cur_pos[0] + rel_pos[0] * 2, cur_pos[1] + rel_pos[1] * 2]
+        # far_stack = self.map[far_pos[1]][far_pos[0]]
         return cur_pos
     
-    def event_listener(self):
-        events = []
-        if "player" in [i.material_type for i in self.map[self.finish_pos[1]][self.finish_pos[0]].materials]:
-            events.append("win")
-        return events
-
-class StackController():
-    material_cache = {}
-    def __init__(self, *material_ids: str):
-        for id in material_ids:
-            if id not in list(self.material_cache.keys()):
-                self.material_cache[id] = Material(id)
-        self.materials = [self.material_cache[item] for item in material_ids]
-    def get_textures(self):
-        return list([i.texture, i.orientation] for i in self.materials)
-    #TODO 
-    def get_entity_attributes(self):
-        type_list = [i.material_type for i in self.materials]
-        id_list = [i.material_id for i in self.materials]
-        height_list = [i.height for i in self.materials]
-        walk_list = [("walk" in i.attributes) for i in self.materials]
-        move_list = [("move" in i.attributes) for i in self.materials]
-
-        return type_list, id_list, height_list, walk_list, move_list
+    def event_manager(self):
+        pass
 
 class Material:
     def __init__(self, material_id):
         self.id = material_id
-        self.path = "assets/materials/" + self.id + ".json"
-        self.data = json_read(self.path)
+        path = "assets/materials/" + self.id + ".json"
+        
+        try:
+            self.data = json_read(path)
+        except JSONReadError:
+            raise JSONFileCorrupt("Cannot read JSON file: " + path)
+        
+        try:
+            self.type = self.data["type"]
+            self.texture = self.data["texture"]
+            self.height = self.data["height"]
+        except KeyError as ke:
+            raise JSONFileCorrupt("Missing material data: " + str(ke) + " / " + path)
 
-        # self.type = self.material_data.get("material_type", "block")
-        self.texture = self.material_data.get("texture", "water")
-        self.orientation = 0
+        self.attributes = self.data.get("attributes", [])
+        self.events = self.data.get("events", [])
 
-        self.height = self.material_data.get("height", 0)
-        self.attributes = self.material_data.get("attributes", [])
+class StackController():
+    material_cache = InstanceCache(Material)
+    def __init__(self, material_id: str):
+        self.materials = [self.material_cache.load_key(material_id)]
+        
+    def get_textures(self):
+        return list(item.texture for item in self.materials if item.type != "player")
